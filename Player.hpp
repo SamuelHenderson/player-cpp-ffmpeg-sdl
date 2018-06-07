@@ -40,7 +40,7 @@ class Player {
 public:
 	
 	//construtor
-	Player(std::string endereco) {
+	Player(std::string filename) {
 
 		audioStream = -1;
 
@@ -48,29 +48,29 @@ public:
 		av_register_all();
 
 		//open video
-		int res = avformat_open_input(&pFormatCtx, endereco.c_str(), NULL, NULL);
+		int res = avformat_open_input(&pFormatCtx, filename.c_str(), NULL, NULL);
 
 		//check video opened
 		if (res!=0){
-			exibirErro(res);
+			ShowError(res);
 			exit(-1);
 		}
 
 		//get video info
 		res = avformat_find_stream_info(pFormatCtx, NULL);
 		if (res < 0) {
-			exibirErro(res);
+			ShowError(res);
 			exit(-1);
 		}
 
 		//get video stream
-		videoStream = obterCodecParameters();
+		videoStream = GetCodecParameters();
 		if (videoStream == -1) {
 			std::cout << "Error opening your video using AVCodecParameters, does not have codecpar_type type AVMEDIA_TYPE_VIDEO" << std::endl;
 			exit(-1);
 		}
 
-		if (lerCodecVideo() < 0) exit(-1);
+		if (ReadideoCodec() < 0) exit(-1);
 
 	}
 
@@ -91,56 +91,57 @@ public:
 	}
 
 	
-	void exibirInformacaoArquivoVideo(void);
-	int alocarMemoria(void);
+	//void exibirInformacaoArquivoVideo(void);
+	int AllocateMemory(void);
 	int lerFramesVideo(void);
-	int criarDisplay(void);
+	int CreateDisplay(void);
 	
-	static int getAudioPacket(AudioPacket*, AVPacket*, int);
+	static int GetAudioPacket(AudioPacket*, AVPacket*, int);
 
 private:
 	
-	void memsetAudioPacket(AudioPacket * pq);
-	//armazena o �ndice do determinado Stream a ser transmitido
+	//void memsetAudioPacket(AudioPacket * pq);
+
+	// Stores the index of the given stream to be transmitted
 	int videoStream;
 
-	//stream de audio
+	// Audio Stream index
 	int audioStream;
 
-	//contem informa��es sobre o arquivo de v�deo, incluindo os codecs, etc
+	// Contains information about the video file, including codecs, etc.
 	AVFormatContext *pFormatCtx = NULL;
 
-	//contem informa��es do codec do v�deo, obtidas atraves de
-	//pFormatCtx->streams[i]->codecpar
-	//olhando o codec_type e vendo se � transmissao de video do tipo AVMEDIA_TYPE_VIDEO
+	// Contains information about the video codec, obtained through pFormatCtx->streams[i]->codecpar
+	// looking at the codec_type and seeing if video transmission of type AVMEDIA_TYPE_VIDEO
 	AVCodecParameters *pCodecParameters = NULL;
 
 	//Audio COdec Parametrs
 	AVCodecParameters *pCodecAudioParameters = NULL;
 
-	//informa��es do codecParameters, por�m copiadas. o pCodecParameters serve como um backup das informa��es do v�deo
+
+	// CodecParameters information, but copied. pCodecParameters serves as a backup of the video information
 	AVCodecContext *pCodecCtx = NULL;
 
 	AVCodecContext *pCodecAudioCtx = NULL;
 
 	SDL_AudioSpec wantedSpec = { 0 }, audioSpec = { 0 };
 
-	//guarda o codec do v�deo
+	// Save Video Codec
 	AVCodec *pCodec = NULL;
 
-	//guarda o codec do audio
+	// Save Audio Codec
 	AVCodec *pAudioCodec = NULL;
 
-	//estrutura que guarda o frame
+	// Structure that holds the frame
 	AVFrame *pFrame = NULL;
 
-	//estrutura que guarda o frame RGB
+	// Structure that holds RGB frame
 	AVFrame *pFrameRGB = NULL;
 
-	//buffer para leitura dos frames
+	// Buffer for reading video frames
 	uint8_t *buffer = NULL;
 
-	//estrutura que armazena a convers�o para RGB
+	// Structure that stores the conversion to RGB
 	struct SwsContext *sws_ctx = NULL;
 
 	//surface window para exibir o video
@@ -151,14 +152,14 @@ private:
 
 	SDL_Texture* bmp;
 	
-	//exibe o erro com rela��o ao seu respectivo c�digo
-	void exibirErro(int erro);
+	// Displays the error message for the given error code
+	void ShowError(int error);
 
-	int obterCodecParameters(void);
+	int GetCodecParameters(void);
 
-	int lerCodecVideo(void);
+	int ReadideoCodec(void);
 
-	int PacketQueuePut(AudioPacket *, const AVPacket *);
+	//int PacketQueuePut(AudioPacket *, const AVPacket *);
 
 	void initAudioPacket(AudioPacket *); 
 

@@ -2,31 +2,31 @@
 
 using namespace std;
 
-//struct para audio
+// struct for audio
 struct SwrContext *swrCtx = NULL;
 AVFrame wanted_frame;
 
 AudioPacket audioq;
 void audio_callback(void*, Uint8*, int);
 
-//exibe informa��o dos streams do arquivo de v�deo espec�fico
-void Player::exibirInformacaoArquivoVideo(void) {
+// Displays information from streams in the video file
+void Player::DisplayVideoParameters(void) {
 
 	av_dump_format(pFormatCtx, 0, pFormatCtx->filename, 0);
 
 }
 
-//exibe o erro, descrevendo-o
-void Player::exibirErro(int erro) {
+// Displays the error, describing it
+void Player::ShowError(int erro) {
 
-	char errobuf[ERROR_SIZE];
-	av_strerror(erro, errobuf, ERROR_SIZE);
-	cout << "Erro = " << errobuf<<endl;
+	char errorbuf[ERROR_SIZE];
+	av_strerror(erro, errorbuf, ERROR_SIZE);
+	cout << "Error = " << errorbuf<<endl;
 
 }
 
-//obtem o stream do video
-int Player::obterCodecParameters(void) {
+// Get Codec Parameters
+int Player::GetCodecParameters(void) {
 
 
 	int videoStream = -1;
@@ -44,8 +44,8 @@ int Player::obterCodecParameters(void) {
 
 }
 
-//ler o codec do stream em quest�o, do v�deo lido
-int Player::lerCodecVideo(void) {
+// Read the codec of the stream in question
+int Player::ReadideoCodec(void) {
 
 	//v� se o codec � suportado
 	pCodec = avcodec_find_decoder(pCodecParameters->codec_id);
@@ -109,7 +109,7 @@ int Player::lerCodecVideo(void) {
 }
 
 //aloca a mem�ria de acordo com o tamanho do v�deo
-int Player::alocarMemoria(void) {
+int Player::AllocateMemory(void) {
 
 	swrCtx = swr_alloc();
 	if(swrCtx == NULL){
@@ -175,7 +175,7 @@ int Player::alocarMemoria(void) {
 	//associa o buffer ao Frame
 	res = av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize, buffer, FORMATO, pCodecCtx->width, pCodecCtx->height, 1);
 	if (res < 0) {
-		exibirErro(res);
+		ShowError(res);
 		return res;
 	}
 	return 1;
@@ -222,7 +222,7 @@ int Player::putAudioPacket(AudioPacket *q, AVPacket *pkt)
     return 0;
 }
 
-int Player::getAudioPacket(AudioPacket* q, AVPacket* pkt, int block){
+int Player::GetAudioPacket(AudioPacket* q, AVPacket* pkt, int block){
 
 	AVPacketList* pktl;
     int ret;
@@ -343,7 +343,7 @@ int audio_decode_frame(AVCodecContext* aCodecCtx, uint8_t* audio_buf, int buf_si
         if (pkt.data)
             av_packet_unref(&pkt);
 
-        if (Player::getAudioPacket(&audioq, &pkt, 1) < 0)
+        if (Player::GetAudioPacket(&audioq, &pkt, 1) < 0)
             return -1;
 
         audio_pkt_data = pkt.data;
@@ -423,13 +423,13 @@ int Player::lerFramesVideo(void) {
 			//processo de decodifica��o
 			int res = avcodec_send_packet(pCodecCtx, &packet);
 			if (res < 0) {
-				exibirErro(res);
+				ShowError(res);
 				continue;
 			}
 
 			res = avcodec_receive_frame(pCodecCtx, pFrame);
 			if (res < 0) {
-				exibirErro(res);
+				ShowError(res);
 				continue;
 			}
 			SDL_UpdateYUVTexture(bmp, NULL, pFrame->data[0], pFrame->linesize[0],
@@ -449,7 +449,7 @@ int Player::lerFramesVideo(void) {
 
 }
 
-int Player::criarDisplay(void) {
+int Player::CreateDisplay(void) {
 
 	screen = SDL_CreateWindow("Video Player teste",
 		SDL_WINDOWPOS_CENTERED,

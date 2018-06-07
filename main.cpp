@@ -20,14 +20,14 @@ int main(int argc, const char *argv[]) {
 	
 	Player * player = new Player(argv[1]);
 	
-	int res = player->alocarMemoria();
+	int res = player->AllocateMemory();
 	if (res < 0) {
 		cout << "Fatal Error";
 		delete(player);
 		exit(-1);
 	}
 
-	res= player->criarDisplay();
+	res= player->CreateDisplay();
 
 	res = player->lerFramesVideo();
 	if (res < 0) {
